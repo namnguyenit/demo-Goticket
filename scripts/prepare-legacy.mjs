@@ -1,13 +1,16 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { cp, mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
+import { cp, mkdir, readFile, readdir, rm, writeFile, access } from "node:fs/promises";
+import { spawnSync } from "node:child_process";
 import ejs from "ejs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const root = path.resolve(__dirname, "..");
 
+const legacyFrontRoot = path.join(root, "legacy", "front-end");
 const legacyFrontDist = path.join(root, "legacy", "front-end", "dist");
+const legacyAdminRoot = path.join(root, "legacy", "admin-dashboard");
 const legacyAdminDist = path.join(root, "legacy", "admin-dashboard", "dist");
 const legacyVendorRoot = path.join(root, "legacy", "vendor-front-end");
 const legacyVendorViews = path.join(legacyVendorRoot, "views");
@@ -22,6 +25,41 @@ async function ensureDir(dirPath) {
 
 async function copyDir(src, dest) {
   await cp(src, dest, { recursive: true, force: true });
+}
+
+async function exists(filePath) {
+  try {
+    await access(filePath);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function runCommand(command, args, cwd) {
+  const result = spawnSync(command, args, {
+    cwd,
+    stdio: "inherit",
+    shell: process.platform === "win32",
+  });
+
+  if (result.status !== 0) {
+    throw new Error(`Command failed: ${command} ${args.join(" ")} (cwd: ${cwd})`);
+  }
+}
+
+async function ensureLegacyDistBuilt() {
+  const frontAssetsPath = path.join(legacyFrontDist, "assets");
+  if (!(await exists(frontAssetsPath))) {
+    runCommand("npm", ["install"], legacyFrontRoot);
+    runCommand("npm", ["run", "build"], legacyFrontRoot);
+  }
+
+  const adminAssetsPath = path.join(legacyAdminDist, "assets");
+  if (!(await exists(adminAssetsPath))) {
+    runCommand("npm", ["install"], legacyAdminRoot);
+    runCommand("npm", ["run", "build"], legacyAdminRoot);
+  }
 }
 
 function injectFrontLoginHelper(html) {
@@ -433,6 +471,8 @@ async function prepareVendor() {
 }
 
 async function main() {
+  await ensureLegacyDistBuilt();
+
   await rm(mirrorRoot, { recursive: true, force: true });
   await rm(path.join(publicRoot, "vendor"), { recursive: true, force: true });
 
