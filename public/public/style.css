@@ -121,3 +121,69 @@ table.table{width:100%;border-collapse:separate;border-spacing:0 10px}
 	.two-cols{grid-template-columns:1fr}
 }
 
+@media (max-width: 992px){
+	.layout{
+		display:block;
+		min-height:100%;
+	}
+
+	.sidebar{
+		position:static;
+		height:auto;
+		width:100%;
+		padding:12px;
+	}
+
+	.sidebar nav{
+		flex-direction:row;
+		overflow-x:auto;
+		padding-bottom:4px;
+	}
+
+	.sidebar .nav-item{
+		white-space:nowrap;
+		flex:0 0 auto;
+	}
+
+	.logout{
+		margin-top:12px;
+	}
+
+	.content{
+		padding:12px;
+	}
+
+	.topbar{
+		padding:12px;
+		flex-wrap:wrap;
+		justify-content:space-between;
+	}
+}
+
+@media (max-width: 640px){
+	.topbar .title{
+		font-size:18px;
+	}
+
+	.topbar .actions{
+		width:100%;
+		justify-content:flex-end;
+	}
+
+	.card{
+		padding:14px;
+	}
+
+	.seat-grid{
+		grid-template-columns:repeat(4, minmax(30px,1fr));
+	}
+
+	.modal{
+		padding:10px;
+	}
+
+	.modal-dialog{
+		width:96vw;
+	}
+}
+

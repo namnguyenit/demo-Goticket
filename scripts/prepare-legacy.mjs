@@ -349,6 +349,197 @@ function injectRoleAdminNavButton(html) {
   return html.replace('</body>', `${navScript}</body>`);
 }
 
+function injectFrontResponsiveHotfix(html) {
+  const styleBlock = `
+<style id="legacy-front-mobile-hotfix">
+  html, body, #root {
+    max-width: 100%;
+  }
+
+  body {
+    overflow-x: hidden;
+  }
+
+  img, video, canvas, svg {
+    max-width: 100%;
+    height: auto;
+  }
+
+  @media (max-width: 768px) {
+    input, select, textarea, button {
+      font-size: 16px;
+    }
+
+    table {
+      display: block;
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+  }
+</style>`;
+
+  if (html.includes('legacy-front-mobile-hotfix')) {
+    return html;
+  }
+
+  return html.replace('</head>', `${styleBlock}</head>`);
+}
+
+function injectAdminResponsiveHotfix(html) {
+  const styleBlock = `
+<style id="legacy-admin-mobile-hotfix">
+  html, body, #root {
+    max-width: 100%;
+  }
+
+  body {
+    overflow-x: hidden;
+  }
+
+  [data-legacy-admin-main] {
+    overflow-x: auto;
+  }
+
+  @media (max-width: 1024px) {
+    [data-legacy-admin-content] {
+      margin-left: 0 !important;
+      width: 100%;
+      min-width: 0;
+    }
+
+    [data-legacy-admin-sidebar] {
+      transform: translateX(-105%);
+      transition: transform 220ms ease;
+      z-index: 40;
+      max-width: min(20rem, 88vw);
+    }
+
+    body.legacy-admin-mobile-open [data-legacy-admin-sidebar] {
+      transform: translateX(0);
+    }
+
+    [data-legacy-admin-header] {
+      padding-left: 12px !important;
+      padding-right: 12px !important;
+    }
+
+    [data-legacy-admin-main] {
+      padding: 12px !important;
+    }
+
+    #legacy-admin-mobile-toggle {
+      position: fixed;
+      left: 12px;
+      bottom: 12px;
+      z-index: 45;
+      width: 44px;
+      height: 44px;
+      border: none;
+      border-radius: 999px;
+      background: #111827;
+      color: #ffffff;
+      font-size: 20px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.28);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #legacy-admin-mobile-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.35);
+      z-index: 39;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 160ms ease;
+    }
+
+    body.legacy-admin-mobile-open #legacy-admin-mobile-backdrop {
+      opacity: 1;
+      pointer-events: auto;
+    }
+  }
+
+  @media (min-width: 1025px) {
+    #legacy-admin-mobile-toggle,
+    #legacy-admin-mobile-backdrop {
+      display: none !important;
+    }
+  }
+</style>`;
+
+  const scriptBlock = `
+<script>
+(function () {
+  if (window.__legacyAdminMobileHotfixBound) return;
+  window.__legacyAdminMobileHotfixBound = true;
+
+  function tagLayoutNodes() {
+    const sidebar = document.querySelector('div.fixed.left-0.top-0.z-20');
+    const content = document.querySelector('div.flex.flex-1.flex-col.overflow-hidden.ml-64');
+    const header = document.querySelector('header.sticky.top-0');
+    const main = document.querySelector('main.flex-1.overflow-y-auto.overflow-x-hidden.p-6');
+
+    if (sidebar) sidebar.setAttribute('data-legacy-admin-sidebar', '1');
+    if (content) content.setAttribute('data-legacy-admin-content', '1');
+    if (header) header.setAttribute('data-legacy-admin-header', '1');
+    if (main) main.setAttribute('data-legacy-admin-main', '1');
+  }
+
+  function closeMenu() {
+    document.body.classList.remove('legacy-admin-mobile-open');
+  }
+
+  function ensureMobileControls() {
+    if (window.innerWidth > 1024) {
+      closeMenu();
+      return;
+    }
+
+    if (!document.getElementById('legacy-admin-mobile-backdrop')) {
+      const backdrop = document.createElement('div');
+      backdrop.id = 'legacy-admin-mobile-backdrop';
+      backdrop.addEventListener('click', closeMenu);
+      document.body.appendChild(backdrop);
+    }
+
+    if (!document.getElementById('legacy-admin-mobile-toggle')) {
+      const button = document.createElement('button');
+      button.id = 'legacy-admin-mobile-toggle';
+      button.type = 'button';
+      button.setAttribute('aria-label', 'Mo menu quan tri');
+      button.textContent = '☰';
+      button.addEventListener('click', function () {
+        document.body.classList.toggle('legacy-admin-mobile-open');
+      });
+      document.body.appendChild(button);
+    }
+  }
+
+  function boot() {
+    tagLayoutNodes();
+    ensureMobileControls();
+  }
+
+  const observer = new MutationObserver(boot);
+  observer.observe(document.documentElement, { childList: true, subtree: true });
+  window.addEventListener('resize', ensureMobileControls);
+  boot();
+})();
+</script>`;
+
+  let nextHtml = html;
+  if (!nextHtml.includes('legacy-admin-mobile-hotfix')) {
+    nextHtml = nextHtml.replace('</head>', `${styleBlock}</head>`);
+  }
+  if (!nextHtml.includes('__legacyAdminMobileHotfixBound')) {
+    nextHtml = nextHtml.replace('</body>', `${scriptBlock}</body>`);
+  }
+  return nextHtml;
+}
+
 function rewriteVendorHtml(html) {
   let nextHtml = html;
 
@@ -414,7 +605,13 @@ async function prepareFrontAndAdmin() {
   const withLoginHelper = injectFrontLoginHelper(frontIndex);
   const withRoleRedirect = injectRoleLandingRedirect(withLoginHelper);
   const withRoleButton = injectRoleAdminNavButton(withRoleRedirect);
-  await writeFile(frontIndexPath, withRoleButton, "utf8");
+  const withFrontResponsiveHotfix = injectFrontResponsiveHotfix(withRoleButton);
+  await writeFile(frontIndexPath, withFrontResponsiveHotfix, "utf8");
+
+  const adminIndexPath = path.join(adminMirror, "index.html");
+  const adminIndex = await readFile(adminIndexPath, "utf8");
+  const withAdminResponsiveHotfix = injectAdminResponsiveHotfix(adminIndex);
+  await writeFile(adminIndexPath, withAdminResponsiveHotfix, "utf8");
 
   await patchLegacyAssetJsUrls();
 }
