@@ -1,0 +1,171 @@
+<%- include('partials/head', { title }) %>
+<%- include('partials/sidebar') %>
+
+<main class="content">
+  <%- include('partials/topbar') %>
+  <section class="card">
+    <div class="card-title row-between">
+      <span>Danh sách phương tiện</span>
+      <button class="btn btn-primary" data-open-modal="#vehicleModal"><i class="ri-add-circle-line"></i> Tạo</button>
+    </div>
+    <div class="table-wrap">
+      <table class="table" id="vehicleTable">
+        <thead>
+          <tr>
+            <th>Stt</th>
+            <th>Tên xe</th>
+            <th>Loại</th>
+            <th>Số ghế</th>
+            <th>Hành động</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="modal" id="vehicleModal" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3>Tạo phương tiện</h3>
+        <button class="modal-close" data-close-modal>&times;</button>
+      </div>
+      <form id="vehicleForm" class="modal-body">
+        <div class="form-group">
+          <label>Tên xe</label>
+          <input type="text" name="name" placeholder="Nhập tên xe" required />
+        </div>
+        <div class="form-group">
+          <label>Loại phương tiện</label>
+          <select name="vehicle_type" required>
+            <option value="bus" selected>Bus</option>
+            <option value="train">Tàu hỏa</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Biển số (chỉ áp dụng Bus)</label>
+          <input type="text" name="license_plate" placeholder="VD: 51A-123.45" />
+        </div>
+
+        
+        <div id="busFields">
+          <div class="form-group">
+            <label>Loại toa/xe (bus)</label>
+            <select name="bus_coach_type">
+              <option value="sleeper_vip">Sleeper VIP</option>
+              <option value="sleeper_regular">Sleeper Regular</option>
+              <option value="limousine">Limousine</option>
+              <option value="seat_soft">Ghế mềm</option>
+              <option value="seat_VIP">Ghế VIP</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Tổng số ghế (bus)</label>
+            <input type="number" min="1" name="bus_total_seats" value="34" />
+          </div>
+        </div>
+
+        
+        <div id="trainFields" style="display:none">
+          <div class="row-between" style="margin:8px 0">
+            <strong>Danh sách toa (train)</strong>
+            <button type="button" class="btn" id="addCoachBtn"><i class="ri-add-line"></i> Thêm toa</button>
+            <small class="muted">Ghế mềm: 40 chỗ/toa · Ghế VIP: 6 khoang x 4 ghế = 24 chỗ/toa</small>
+          </div>
+          <div class="table-wrap scroll-area">
+            <table class="table" id="coachTable">
+              <thead>
+                <tr>
+                  <th>Loại toa</th>
+                  <th>Số ghế/toa</th>
+                  <th>Số lượng toa</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn" data-close-modal>Hủy</button>
+          <button type="submit" class="btn btn-primary">Tạo</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  
+  <div class="modal" id="editVehicleModal" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3>Sửa phương tiện</h3>
+        <button class="modal-close" data-close-modal>&times;</button>
+      </div>
+      <form id="editVehicleForm" class="modal-body">
+        <input type="hidden" name="id" />
+        <div class="form-group">
+          <label>Tên xe</label>
+          <input type="text" name="name" required />
+        </div>
+        <div class="form-group">
+          <label>Loại phương tiện</label>
+          <select name="vehicle_type" required>
+            <option value="bus">Bus</option>
+            <option value="train">Tàu hỏa</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Biển số (chỉ áp dụng Bus)</label>
+          <input type="text" name="license_plate" />
+        </div>
+
+        <div id="editTrainSection" style="display:none">
+          <div class="table-wrap">
+            <table class="table" id="existingCoachTable">
+              <thead>
+                <tr>
+                  <th>Identifier</th>
+                  <th>Loại toa</th>
+                  <th>Số ghế</th>
+                  <th>Hành động</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="row-between" style="margin:8px 0">
+            <strong>Thêm toa mới</strong>
+            <button type="button" class="btn" id="editAddCoachBtn"><i class="ri-add-line"></i> Thêm toa</button>
+          </div>
+          <div class="table-wrap">
+            <table class="table" id="editCoachTable">
+              <thead>
+                <tr>
+                  <th>Loại toa</th>
+                  <th>Số ghế/toa</th>
+                  <th>Số lượng</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <small class="muted">Ghế mềm: 40 chỗ/toa · Ghế VIP: 24 chỗ/toa. Xóa toa cũ bằng nút 🗑 ở bảng trên.</small>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn" data-close-modal>Hủy</button>
+          <button type="submit" class="btn btn-primary">Lưu</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</main>
+
+<%- include('partials/footer-scripts') %>
+

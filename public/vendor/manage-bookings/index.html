@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quan ly ve · Vendor Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/public/style.css" />
+  
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
+  <script>
+    (function(){
+      window.API_BASE_URL = localStorage.getItem('API_BASE_URL') || '/api';
+      window.API_TOKEN = localStorage.getItem('API_TOKEN') || '';
+      window.REQUIRE_AUTH = ("1" === "1");
+    })();
+  </script>
+</head>
+<body>
+  <div class="layout">
+<aside class="sidebar">
+  <div class="brand">
+    <div class="logo">🚐</div>
+    <div class="brand-name">Tổng quát</div>
+  </div>
+  <nav>
+    <a href="/vendor/" class="nav-item "><i class="ri-home-4-line"></i><span>Tổng quát</span></a>
+    <a href="/vendor/tickets" class="nav-item "><i class="ri-add-box-line"></i><span>Tạo vé</span></a>
+    <a href="/vendor/manage-bookings" class="nav-item active"><i class="ri-ticket-2-line"></i><span>Quản lý vé</span></a>
+    <a href="/vendor/transfers" class="nav-item "><i class="ri-sound-module-line"></i><span>Quản lý trung chuyển</span></a>
+    <a href="/vendor/vehicles" class="nav-item "><i class="ri-bus-2-line"></i><span>Quản lý xe</span></a>
+    <a href="/vendor/settings" class="nav-item "><i class="ri-settings-3-line"></i><span>Setting</span></a>
+  </nav>
+  <div class="logout">
+    <i class="ri-logout-box-r-line"></i>
+    <span>Thoát</span>
+  </div>
+</aside>
+
+<main class="content">
+  <header class="topbar">
+  <div class="title">Tổng quát</div>
+  <div class="actions">
+    <button class="icon-btn" title="Cài đặt"><i class="ri-settings-4-line"></i></button>
+    <button class="icon-btn" title="Thông báo"><i class="ri-notification-3-line"></i></button>
+    <div class="profile">
+      <div class="avatar" id="vendorAvatar"><i class="ri-user-3-fill"></i></div>
+      <span id="vendorName">Nhà xe</span>
+    </div>
+  </div>
+</header>
+  <section class="card">
+    <div class="card-title row-between">
+      <span>Quản lý vé</span>
+      <div></div>
+    </div>
+    <div class="table-wrap">
+      <table class="table" id="bookingTable">
+        <thead>
+          <tr>
+            <th>Mã vé</th>
+            <th>Khách hàng</th>
+            <th>Liên hệ</th>
+            <th>Tuyến</th>
+            <th>Khởi hành</th>
+            <th>Xe</th>
+            <th>Biển số</th>
+            <th>Ghế</th>
+            <th>Tổng tiền</th>
+            <th>Trạng thái</th>
+            <th>Thao tác</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<!-- Edit Booking Modal -->
+<div class="modal" id="editBookingModal" aria-hidden="true">
+  <div class="modal-dialog">
+      <div class="modal-header">
+        <h3>Sửa vé</h3>
+        <button class="modal-close" data-close-modal>&times;</button>
+      </div>
+      <form id="editBookingForm" class="modal-body">
+        <input type="hidden" name="id" />
+        <div class="form-group">
+          <label>Trạng thái</label>
+          <select name="status">
+            <option value="confirmed">Đã xác nhận</option>
+            <option value="pending">Chờ xử lý</option>
+            <option value="cancelled">Đã huỷ</option>
+          </select>
+        </div>
+        <div class="form-group dropdown">
+          <label>Điểm đón</label>
+          <select name="pickup_stop_id" id="pickupStopSel">
+            <option value="">-- Chọn điểm đón (tuỳ chọn) --</option>
+          </select>
+        </div>
+        <div class="form-group dropdown">
+          <label>Điểm trả</label>
+          <select name="dropoff_stop_id" id="dropoffStopSel">
+            <option value="">-- Chọn điểm trả (tuỳ chọn) --</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Chọn ghế</label>
+          <div id="seatGrid" class="seat-grid"></div>
+          <small class="muted">Ghế đang bận sẽ bị khóa, không chọn được.</small>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn" data-close-modal>Hủy</button>
+          <button type="submit" class="btn btn-primary">Lưu</button>
+        </div>
+      </form>
+  </div>
+</div>
+
+  </div> 
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  
+  
+  <script src="/public/js/api.js"></script>
+  <script src="/public/js/charts.js"></script>
+  <script src="/public/js/app.js"></script>
+  <script>
+    (function(){
+      if(window.REQUIRE_AUTH && !window.API_TOKEN){
+        if(location.pathname !== '/vendor/login'){
+          location.href = '/vendor/login';
+        }
+      }
+      const lg = document.querySelector('.logout');
+      if(lg){
+        lg.addEventListener('click', function(){
+          localStorage.removeItem('API_TOKEN');
+          window.API_TOKEN = '';
+          location.href = '/vendor/login';
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,74 @@
+<%- include('partials/head', { title }) %>
+<%- include('partials/sidebar') %>
+
+<main class="content">
+  <%- include('partials/topbar') %>
+  <section class="card">
+    <div class="card-title row-between">
+      <span>Quản lý trung chuyển</span>
+      <div class="row-gap-sm">
+        <button class="btn btn-primary" data-open-modal="#transferModal"><i class="ri-add-circle-line"></i> Tạo</button>
+      </div>
+    </div>
+     <div class="row-between">
+        <div class="row" style="gap:8px;align-items:center;">
+          <label class="muted">Loại phương tiện:</label>
+          <select id="transferTypeFilter">
+            <option value="bus">Xe khách (Bus)</option>
+            <option value="train">Tàu hoả (Train)</option>
+          </select>
+        </div>
+        <div class="muted" id="transferSummary"></div>
+      </div>
+      <div id="transferGroups" class="transfer-groups"></div>
+  </section>
+
+  <div class="modal" id="transferModal" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3>Thêm điểm trung chuyển</h3>
+        <button class="modal-close" data-close-modal>&times;</button>
+      </div>
+      <form id="transferForm" class="modal-body">
+        <div class="form-group dropdown">
+          <label>Thành phố</label>
+          <select name="city"></select>
+        </div>
+        <div class="form-group">
+          <label>Tên điểm dừng</label>
+          <input type="text" name="point" placeholder="VD: Bến xe Nước Ngầm" />
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn" data-close-modal>Hủy</button>
+          <button type="submit" class="btn btn-primary">Tạo</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="editStopModal" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3>Cập nhật điểm trung chuyển</h3>
+        <button class="modal-close" data-close-modal>&times;</button>
+      </div>
+      <form id="editStopForm" class="modal-body">
+        <input type="hidden" name="id" />
+        <div class="form-group">
+          <label>Tên điểm dừng</label>
+          <input type="text" name="name" />
+        </div>
+        <div class="form-group">
+          <label>Địa chỉ</label>
+          <input type="text" name="address" />
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn" data-close-modal>Hủy</button>
+          <button type="submit" class="btn btn-primary">Lưu</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</main>
+
+<%- include('partials/footer-scripts') %>

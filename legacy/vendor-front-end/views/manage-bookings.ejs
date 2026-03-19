@@ -1,0 +1,76 @@
+<%- include('partials/head', { title }) %>
+<%- include('partials/sidebar') %>
+
+<main class="content">
+  <%- include('partials/topbar') %>
+  <section class="card">
+    <div class="card-title row-between">
+      <span>Quản lý vé</span>
+      <div></div>
+    </div>
+    <div class="table-wrap">
+      <table class="table" id="bookingTable">
+        <thead>
+          <tr>
+            <th>Mã vé</th>
+            <th>Khách hàng</th>
+            <th>Liên hệ</th>
+            <th>Tuyến</th>
+            <th>Khởi hành</th>
+            <th>Xe</th>
+            <th>Biển số</th>
+            <th>Ghế</th>
+            <th>Tổng tiền</th>
+            <th>Trạng thái</th>
+            <th>Thao tác</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<!-- Edit Booking Modal -->
+<div class="modal" id="editBookingModal" aria-hidden="true">
+  <div class="modal-dialog">
+      <div class="modal-header">
+        <h3>Sửa vé</h3>
+        <button class="modal-close" data-close-modal>&times;</button>
+      </div>
+      <form id="editBookingForm" class="modal-body">
+        <input type="hidden" name="id" />
+        <div class="form-group">
+          <label>Trạng thái</label>
+          <select name="status">
+            <option value="confirmed">Đã xác nhận</option>
+            <option value="pending">Chờ xử lý</option>
+            <option value="cancelled">Đã huỷ</option>
+          </select>
+        </div>
+        <div class="form-group dropdown">
+          <label>Điểm đón</label>
+          <select name="pickup_stop_id" id="pickupStopSel">
+            <option value="">-- Chọn điểm đón (tuỳ chọn) --</option>
+          </select>
+        </div>
+        <div class="form-group dropdown">
+          <label>Điểm trả</label>
+          <select name="dropoff_stop_id" id="dropoffStopSel">
+            <option value="">-- Chọn điểm trả (tuỳ chọn) --</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Chọn ghế</label>
+          <div id="seatGrid" class="seat-grid"></div>
+          <small class="muted">Ghế đang bận sẽ bị khóa, không chọn được.</small>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn" data-close-modal>Hủy</button>
+          <button type="submit" class="btn btn-primary">Lưu</button>
+        </div>
+      </form>
+  </div>
+</div>
+
+<%- include('partials/footer-scripts') %>

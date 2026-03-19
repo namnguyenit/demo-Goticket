@@ -1,0 +1,319 @@
+.home {
+  min-height: 100vh;
+  background: #fbf2f2;
+}
+
+.topNavWrap {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px 16px 0;
+}
+
+.hero {
+  position: relative;
+  height: 100vh;
+  width: 100%;
+  background-image: url("/welcome.jpg");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #003580;
+  opacity: 0.85;
+}
+
+.heroInner {
+  position: relative;
+  z-index: 2;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 16px;
+}
+
+.copy {
+  margin-top: 18vh;
+  max-width: 620px;
+  color: #ffffff;
+}
+
+.caption {
+  font-size: 44px;
+  font-weight: 900;
+  line-height: 1.15;
+  margin: 0 0 14px;
+}
+
+.content {
+  font-size: 17px;
+  line-height: 1.6;
+  margin: 0 0 10px;
+}
+
+.cta {
+  margin-top: 8px;
+  font-weight: 700;
+}
+
+.searchSlot {
+  position: relative;
+  height: 140px;
+}
+
+.searchCard {
+  position: absolute;
+  left: 50%;
+  top: -130px;
+  transform: translateX(-50%);
+  width: min(1050px, 92vw);
+  border-radius: 18px;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.14);
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.searchTabs {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 18px;
+  background: #5b2642;
+  color: #ffffff;
+}
+
+.tab {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-weight: 700;
+  padding: 6px 10px;
+  border-radius: 8px;
+}
+
+.tabActive {
+  background: #f7ac3d;
+  color: #5b2642;
+}
+
+.searchFields {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr auto;
+  gap: 10px;
+  padding: 16px;
+  background: #ffffff;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px;
+  border-radius: 12px;
+  background: #fff1e3;
+  border: 1px solid #e6d7c8;
+}
+
+.fieldLabel {
+  font-size: 12px;
+  color: #7a7a7a;
+}
+
+.fieldValue {
+  font-size: 16px;
+  color: #5b2642;
+  font-weight: 700;
+}
+
+.searchBtn {
+  align-self: stretch;
+  border: 0;
+  border-radius: 12px;
+  background: #f7ac3d;
+  color: #25180e;
+  font-weight: 800;
+  padding: 0 20px;
+}
+
+.sectionWrap {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.contactGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 22px;
+  margin-top: 8px;
+}
+
+.contactCard {
+  display: grid;
+  grid-template-columns: 64px 1fr;
+  gap: 10px;
+  align-items: center;
+  min-height: 120px;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 12px 16px;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+  border: 1px solid rgba(98, 34, 67, 0.2);
+}
+
+.contactIcon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: #fff1e3;
+  color: #622243;
+  display: grid;
+  place-items: center;
+  font-size: 26px;
+}
+
+.contactTitle {
+  font-size: 18px;
+  font-weight: 800;
+  color: #1f2937;
+  margin: 0;
+}
+
+.contactText {
+  margin: 4px 0 0;
+  color: #6b7280;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.deals {
+  margin-top: 48px;
+  padding-bottom: 80px;
+}
+
+.dealsKicker {
+  font-size: 13px;
+  color: #ffa903;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 700;
+}
+
+.dealsTitle {
+  font-size: 32px;
+  font-weight: 900;
+  margin: 4px 0 18px;
+}
+
+.dealGrid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 24px;
+}
+
+.bigDeal,
+.smallDeal {
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+  overflow: hidden;
+}
+
+.bigDeal img,
+.smallDeal img {
+  width: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.bigDeal img {
+  height: 350px;
+}
+
+.smallGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.smallDeal img {
+  height: 150px;
+}
+
+.dealBody {
+  padding: 16px;
+}
+
+.dealName {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 900;
+}
+
+.dealMeta {
+  color: #622243;
+  margin: 6px 0;
+  font-weight: 600;
+}
+
+.dealPrice {
+  font-weight: 800;
+  color: #111827;
+}
+
+.smallName {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+@media (max-width: 1024px) {
+  .caption {
+    font-size: 36px;
+  }
+
+  .contactGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .dealGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .hero {
+    height: 80vh;
+  }
+
+  .copy {
+    margin-top: 12vh;
+  }
+
+  .caption {
+    font-size: 30px;
+  }
+
+  .content {
+    font-size: 15px;
+  }
+
+  .searchSlot {
+    height: 250px;
+  }
+
+  .searchCard {
+    top: -95px;
+  }
+
+  .searchFields {
+    grid-template-columns: 1fr;
+  }
+
+  .smallGrid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= title || 'Đăng nhập' %> · Vendor Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/public/style.css" />
+  <style>
+    body,html{height:100%}
+    .login-wrap{min-height:100%;display:flex;align-items:center;justify-content:center;background:#0b0f17}
+    .login-card{width:100%;max-width:420px;background:#0f1623;border:1px solid #1f2937;border-radius:12px;padding:24px;color:#e5e7eb;box-shadow:0 10px 30px rgba(0,0,0,0.3)}
+    .login-card h2{margin:0 0 12px}
+    .form-group{margin:12px 0}
+    .form-group label{display:block;font-size:14px;margin-bottom:6px;color:#93c5fd}
+    .form-group input{width:100%;padding:10px 12px;border-radius:8px;border:1px solid #334155;background:#0b1220;color:#e5e7eb}
+    .row-end{display:flex;justify-content:flex-end;margin-top:12px}
+    .btn{cursor:pointer;padding:10px 14px;border-radius:8px;border:1px solid #334155;background:#111827;color:#e5e7eb}
+    .btn-primary{background:#2563eb;border-color:#2563eb}
+    .hint{font-size:12px;color:#9ca3af}
+    .error{color:#fca5a5;margin-top:8px;min-height:18px}
+  </style>
+  <script>
+    (function(){
+      window.API_BASE_URL = localStorage.getItem('API_BASE_URL') || 'http://127.0.0.1:8000/api';
+      window.API_TOKEN = localStorage.getItem('API_TOKEN') || '';
+    })();
+  </script>
+</head>
+<body>
+  <div class="login-wrap">
+    <div class="login-card">
+      <h2>Đăng nhập Vendor</h2>
+      <p class="hint">Nhập API Base URL nếu khác (mặc định dùng http://127.0.0.1:8000/api)</p>
+      <form id="loginForm">
+        <div class="form-group">
+          <label>API Base URL</label>
+          <input type="text" name="baseUrl" placeholder="http://127.0.0.1:8000/api" />
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" name="email" required placeholder="you@example.com" />
+        </div>
+        <div class="form-group">
+          <label>Mật khẩu</label>
+          <input type="password" name="password" required placeholder="••••••••" />
+        </div>
+        <div class="error" id="errorBox"></div>
+        <div class="row-end">
+          <button type="submit" class="btn btn-primary">Đăng nhập</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      const form = document.getElementById('loginForm');
+      const errorBox = document.getElementById('errorBox');
+      const getBase = () => (form.baseUrl.value.trim() || window.API_BASE_URL || 'http://127.0.0.1:8000/api').replace(/\/$/,'');
+
+      async function req(path, options){
+        const res = await fetch(getBase() + '/' + path.replace(/^\//,''), options);
+        const text = await res.text();
+        let data; try{ data = text ? JSON.parse(text) : {}; }catch{ data = {}; }
+        if(!res.ok){
+          const msg = (data && (data.message || data.error || data.errors)) || `HTTP ${res.status}`;
+          throw new Error(typeof msg === 'string' ? msg : JSON.stringify(msg));
+        }
+        return (data && Object.prototype.hasOwnProperty.call(data, 'data')) ? data.data : data;
+      }
+
+      async function doLogin(email, password){
+        const payload = { email, password };
+        const data = await req('/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        const token = data?.authorisation?.token || data?.token;
+        if(!token) throw new Error('Không nhận được token');
+        localStorage.setItem('API_TOKEN', token);
+        window.API_TOKEN = token;
+        return token;
+      }
+
+      async function getMyInfo(){
+        const token = localStorage.getItem('API_TOKEN') || '';
+        const data = await req('/auth/myinfo', { headers: { 'Authorization': `Bearer ${token}` } });
+        return data;
+      }
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        errorBox.textContent = '';
+        const baseUrl = form.baseUrl.value.trim();
+        if(baseUrl){ localStorage.setItem('API_BASE_URL', baseUrl); window.API_BASE_URL = baseUrl; }
+        try {
+          await doLogin(form.email.value.trim(), form.password.value);
+          const me = await getMyInfo();
+          const role = (me && (me.role || (me.user && me.user.role))) || '';
+          if(String(role).toLowerCase() === 'vendor'){
+            location.href = '/';
+          } else {
+            errorBox.textContent = 'Tài khoản không có quyền vendor.';
+          }
+        } catch(err){
+          errorBox.textContent = err?.message || 'Đăng nhập thất bại';
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

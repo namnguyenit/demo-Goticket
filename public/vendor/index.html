@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tong quat · Vendor Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/public/style.css" />
+  
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
+  <script>
+    (function(){
+      window.API_BASE_URL = localStorage.getItem('API_BASE_URL') || '/api';
+      window.API_TOKEN = localStorage.getItem('API_TOKEN') || '';
+      window.REQUIRE_AUTH = ("1" === "1");
+    })();
+  </script>
+</head>
+<body>
+  <div class="layout">
+<aside class="sidebar">
+  <div class="brand">
+    <div class="logo">🚐</div>
+    <div class="brand-name">Tổng quát</div>
+  </div>
+  <nav>
+    <a href="/vendor/" class="nav-item active"><i class="ri-home-4-line"></i><span>Tổng quát</span></a>
+    <a href="/vendor/tickets" class="nav-item "><i class="ri-add-box-line"></i><span>Tạo vé</span></a>
+    <a href="/vendor/manage-bookings" class="nav-item "><i class="ri-ticket-2-line"></i><span>Quản lý vé</span></a>
+    <a href="/vendor/transfers" class="nav-item "><i class="ri-sound-module-line"></i><span>Quản lý trung chuyển</span></a>
+    <a href="/vendor/vehicles" class="nav-item "><i class="ri-bus-2-line"></i><span>Quản lý xe</span></a>
+    <a href="/vendor/settings" class="nav-item "><i class="ri-settings-3-line"></i><span>Setting</span></a>
+  </nav>
+  <div class="logout">
+    <i class="ri-logout-box-r-line"></i>
+    <span>Thoát</span>
+  </div>
+</aside>
+
+<main class="content">
+	<header class="topbar">
+  <div class="title">Tổng quát</div>
+  <div class="actions">
+    <button class="icon-btn" title="Cài đặt"><i class="ri-settings-4-line"></i></button>
+    <button class="icon-btn" title="Thông báo"><i class="ri-notification-3-line"></i></button>
+    <div class="profile">
+      <div class="avatar" id="vendorAvatar"><i class="ri-user-3-fill"></i></div>
+      <span id="vendorName">Nhà xe</span>
+    </div>
+  </div>
+</header>
+
+	<section class="grid two-cols gap-xl">
+		<div class="card">
+			<div class="card-title">Lịch sử trong năm</div>
+			<canvas id="yearHistoryChart" height="120"></canvas>
+		</div>
+		<div class="card">
+			<div class="card-title">Doanh thu tài khoản</div>
+			<ul class="account-list">
+				<li><i class="ri-wallet-3-line"></i><div><div>Momo</div><small>28 January 2025</small></div><span class="pos">+1,500,000đ</span></li>
+				<li><i class="ri-bank-card-2-line"></i><div><div>BIDV</div><small>25 January 2025</small></div><span class="pos">+2,500,000đ</span></li>
+				<li><i class="ri-qr-scan-2-line"></i><div><div>VNPay</div><small>21 January 2025</small></div><span class="pos">+5,400,000đ</span></li>
+			</ul>
+		</div>
+	</section>
+
+	<section class="grid two-cols gap-xl">
+		<div class="card">
+			<div class="card-title with-legend">
+				<span>Hoạt động trong tuần</span>
+				<div class="legend"><span class="dot teal"></span>Đặt chỗ <span class="dot pink"></span>Huỷ chỗ</div>
+			</div>
+			<canvas id="weekActivityChart" height="140"></canvas>
+		</div>
+		<div class="card">
+			<div class="card-title">Sơ đồ đặt ghế trong ngày</div>
+			<div class="grid two-cols">
+				<canvas id="seatPieChart" height="180"></canvas>
+				<ul class="pie-legend">
+					<li><span class="swatch gold"></span>Đặt</li>
+					<li><span class="swatch green"></span>Trống</li>
+					<li><span class="swatch pink"></span>Bán</li>
+					<li><span class="swatch gray"></span>Giữ</li>
+					<li><span class="swatch cyan"></span>Tạm</li>
+				</ul>
+			</div>
+		</div>
+	</section>
+</main>
+
+  </div> 
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  
+  
+  <script src="/public/js/api.js"></script>
+  <script src="/public/js/charts.js"></script>
+  <script src="/public/js/app.js"></script>
+  <script>
+    (function(){
+      if(window.REQUIRE_AUTH && !window.API_TOKEN){
+        if(location.pathname !== '/vendor/login'){
+          location.href = '/vendor/login';
+        }
+      }
+      const lg = document.querySelector('.logout');
+      if(lg){
+        lg.addEventListener('click', function(){
+          localStorage.removeItem('API_TOKEN');
+          window.API_TOKEN = '';
+          location.href = '/vendor/login';
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

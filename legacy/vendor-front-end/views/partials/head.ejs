@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= title || 'Dashboard' %> · Vendor Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/public/style.css" />
+  
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
+  <script>
+    (function(){
+      window.API_BASE_URL = localStorage.getItem('API_BASE_URL') || 'http://127.0.0.1:8000/api';
+      window.API_TOKEN = localStorage.getItem('API_TOKEN') || '';
+      window.REQUIRE_AUTH = ("<%= (typeof requireAuth !== 'undefined' && requireAuth) ? '1' : '0' %>" === "1");
+    })();
+  </script>
+</head>
+<body>
+  <div class="layout">

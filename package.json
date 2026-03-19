@@ -1,0 +1,26 @@
+{
+  "name": "goticket-nextjs-demo",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "prepare:legacy": "node scripts/prepare-legacy.mjs",
+    "predev": "npm run prepare:legacy",
+    "prebuild": "npm run prepare:legacy",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "ejs": "3.1.10",
+    "next": "^16.1.7",
+    "react": "19.0.0",
+    "react-dom": "19.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "22.15.21",
+    "@types/react": "19.1.2",
+    "@types/react-dom": "19.1.2",
+    "typescript": "5.8.3"
+  }
+}

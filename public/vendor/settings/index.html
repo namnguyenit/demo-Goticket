@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cai dat · Vendor Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/public/style.css" />
+  
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
+  <script>
+    (function(){
+      window.API_BASE_URL = localStorage.getItem('API_BASE_URL') || '/api';
+      window.API_TOKEN = localStorage.getItem('API_TOKEN') || '';
+      window.REQUIRE_AUTH = ("0" === "1");
+    })();
+  </script>
+</head>
+<body>
+  <div class="layout">
+<aside class="sidebar">
+  <div class="brand">
+    <div class="logo">🚐</div>
+    <div class="brand-name">Tổng quát</div>
+  </div>
+  <nav>
+    <a href="/vendor/" class="nav-item "><i class="ri-home-4-line"></i><span>Tổng quát</span></a>
+    <a href="/vendor/tickets" class="nav-item "><i class="ri-add-box-line"></i><span>Tạo vé</span></a>
+    <a href="/vendor/manage-bookings" class="nav-item "><i class="ri-ticket-2-line"></i><span>Quản lý vé</span></a>
+    <a href="/vendor/transfers" class="nav-item "><i class="ri-sound-module-line"></i><span>Quản lý trung chuyển</span></a>
+    <a href="/vendor/vehicles" class="nav-item "><i class="ri-bus-2-line"></i><span>Quản lý xe</span></a>
+    <a href="/vendor/settings" class="nav-item active"><i class="ri-settings-3-line"></i><span>Setting</span></a>
+  </nav>
+  <div class="logout">
+    <i class="ri-logout-box-r-line"></i>
+    <span>Thoát</span>
+  </div>
+</aside>
+
+<main class="content">
+  <header class="topbar">
+  <div class="title">Tổng quát</div>
+  <div class="actions">
+    <button class="icon-btn" title="Cài đặt"><i class="ri-settings-4-line"></i></button>
+    <button class="icon-btn" title="Thông báo"><i class="ri-notification-3-line"></i></button>
+    <div class="profile">
+      <div class="avatar" id="vendorAvatar"><i class="ri-user-3-fill"></i></div>
+      <span id="vendorName">Nhà xe</span>
+    </div>
+  </div>
+</header>
+  <section class="card">
+    <div class="card-title">Cài đặt</div>
+    <div class="grid two-cols gap-lg">
+      <div>
+        <h4>API Backend</h4>
+        <form id="settingsForm" class="form">
+          <div class="form-group">
+            <label>API Base URL</label>
+            <input type="text" name="baseUrl" placeholder="/api" />
+            <small>Ví dụ: /api</small>
+          </div>
+          <div class="form-group">
+            <label>JWT Token</label>
+            <input type="text" name="token" placeholder="Dán token \"Bearer\" ở đây" />
+            <small>Token sẽ được lưu trong LocalStorage của trình duyệt.</small>
+          </div>
+          <div class="row-end">
+            <button type="submit" class="btn btn-primary">Lưu</button>
+          </div>
+        </form>
+      </div>
+      <div>
+        <h4>Giá trị hiện tại</h4>
+        <ul class="list">
+          <li><strong>API_BASE_URL:</strong> <span id="curBaseUrl"></span></li>
+          <li><strong>API_TOKEN:</strong> <span id="curToken"></span></li>
+        </ul>
+        <hr />
+        <h4>Tải logo nhà xe</h4>
+        <form id="logoForm" class="form" enctype="multipart/form-data">
+          <div class="form-group">
+            <label>Chọn ảnh (PNG/JPG/WebP, ≤ 2MB)</label>
+            <input type="file" name="logo" accept="image/png,image/jpeg,image/webp" />
+          </div>
+          <div class="row-end">
+            <button type="submit" class="btn">Tải lên</button>
+          </div>
+          <div class="muted" id="logoPreviewWrap" style="margin-top:8px; display:none;">
+            <img id="logoPreview" src="" alt="logo" style="max-height:64px;"/>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+  (function(){
+    const form = document.getElementById('settingsForm');
+    const baseUrlInput = form.querySelector('input[name="baseUrl"]');
+    const tokenInput = form.querySelector('input[name="token"]');
+    const curBase = document.getElementById('curBaseUrl');
+    const curTok = document.getElementById('curToken');
+
+    function refreshDisplay(){
+      const base = localStorage.getItem('API_BASE_URL') || '/api';
+      const tok = localStorage.getItem('API_TOKEN') || '';
+      curBase.textContent = base;
+      curTok.textContent = tok ? (tok.slice(0,8)+'...'+tok.slice(-6)) : '(chưa cài đặt)';
+      baseUrlInput.value = base;
+      tokenInput.value = tok;
+    }
+
+    form.addEventListener('submit', function(e){
+      e.preventDefault();
+      const base = baseUrlInput.value.trim();
+      const tok = tokenInput.value.trim();
+      if(base) localStorage.setItem('API_BASE_URL', base);
+      localStorage.setItem('API_TOKEN', tok);
+      window.API_BASE_URL = base || window.API_BASE_URL;
+      window.API_TOKEN = tok;
+      alert('Đã lưu cấu hình API.');
+      refreshDisplay();
+    });
+
+    const logoForm = document.getElementById('logoForm');
+    const logoInput = logoForm.querySelector('input[name="logo"]');
+    const prevWrap = document.getElementById('logoPreviewWrap');
+    const prevImg = document.getElementById('logoPreview');
+    logoInput.addEventListener('change', () => {
+      const f = logoInput.files && logoInput.files[0];
+      if(f){ prevWrap.style.display=''; prevImg.src = URL.createObjectURL(f); }
+    });
+    logoForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const f = logoInput.files && logoInput.files[0];
+      if(!f){ return alert('Vui lòng chọn ảnh'); }
+      try {
+        const rs = await API.uploadVendorLogo(f);
+        if(rs && rs.ok){ alert('Tải logo thành công'); } else { alert(rs && rs.error || 'Tải lên thất bại'); }
+      } catch(err){ alert(err.message || 'Tải lên thất bại'); }
+    });
+
+    refreshDisplay();
+  })();
+  </script>
+
+  </div> 
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  
+  
+  <script src="/public/js/api.js"></script>
+  <script src="/public/js/charts.js"></script>
+  <script src="/public/js/app.js"></script>
+  <script>
+    (function(){
+      if(window.REQUIRE_AUTH && !window.API_TOKEN){
+        if(location.pathname !== '/vendor/login'){
+          location.href = '/vendor/login';
+        }
+      }
+      const lg = document.querySelector('.logout');
+      if(lg){
+        lg.addEventListener('click', function(){
+          localStorage.removeItem('API_TOKEN');
+          window.API_TOKEN = '';
+          location.href = '/vendor/login';
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

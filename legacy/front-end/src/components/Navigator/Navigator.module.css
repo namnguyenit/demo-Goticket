@@ -1,0 +1,85 @@
+.box {
+  width: 100vw;
+  height: 90px;
+  display: flex;
+  justify-content: space-between;
+  user-select: none;
+  align-items: center;
+  background-color: transparent;
+  transition: background-color 0.6s ease-out;
+}
+
+.box:hover {
+  background-color: #13171d;
+}
+
+.logo {
+  width: 180px;
+  height: 70%;
+  object-fit: contain;
+  object-position: center;
+  margin-left: 20px;
+}
+
+.wrap {
+  width: 55%;
+  height: 90%;
+  display: flex;
+  justify-content: end;
+  margin-right: 100px;
+}
+
+.navBar {
+  width: 60%;
+  height: 100%;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+}
+
+.link {
+  color: white;
+  font-weight: bold;
+  font-size: 16px;
+  transition: color ease-out 0.3s;
+}
+.link:hover {
+  color: #ffa903;
+}
+
+.auth {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.button {
+  font-weight: bold;
+  font-size: 16px;
+  width: 100px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 3px;
+  transition: background-color ease-out 0.5s;
+}
+
+.register {
+  margin-right: 15px;
+  background-color: #ffffff;
+  color: #000000;
+}
+.register:hover {
+  background-color: #ffa903;
+}
+
+.logIn {
+  color: #000000;
+  background-color: #ffa903;
+}
+
+.logIn:hover {
+  background-color: #ffffff;
+}

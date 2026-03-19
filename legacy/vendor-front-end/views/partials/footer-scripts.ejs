@@ -1,0 +1,28 @@
+  </div> 
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  
+  
+  <script src="/public/js/api.js"></script>
+  <script src="/public/js/charts.js"></script>
+  <script src="/public/js/app.js"></script>
+  <script>
+    (function(){
+      if(window.REQUIRE_AUTH && !window.API_TOKEN){
+        if(location.pathname !== '/login'){
+          location.href = '/login';
+        }
+      }
+      const lg = document.querySelector('.logout');
+      if(lg){
+        lg.addEventListener('click', function(){
+          localStorage.removeItem('API_TOKEN');
+          window.API_TOKEN = '';
+          location.href = '/login';
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

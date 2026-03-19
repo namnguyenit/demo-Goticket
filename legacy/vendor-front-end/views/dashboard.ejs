@@ -1,0 +1,46 @@
+<%- include('partials/head', { title }) %>
+<%- include('partials/sidebar') %>
+
+<main class="content">
+	<%- include('partials/topbar') %>
+
+	<section class="grid two-cols gap-xl">
+		<div class="card">
+			<div class="card-title">Lịch sử trong năm</div>
+			<canvas id="yearHistoryChart" height="120"></canvas>
+		</div>
+		<div class="card">
+			<div class="card-title">Doanh thu tài khoản</div>
+			<ul class="account-list">
+				<li><i class="ri-wallet-3-line"></i><div><div>Momo</div><small>28 January 2025</small></div><span class="pos">+1,500,000đ</span></li>
+				<li><i class="ri-bank-card-2-line"></i><div><div>BIDV</div><small>25 January 2025</small></div><span class="pos">+2,500,000đ</span></li>
+				<li><i class="ri-qr-scan-2-line"></i><div><div>VNPay</div><small>21 January 2025</small></div><span class="pos">+5,400,000đ</span></li>
+			</ul>
+		</div>
+	</section>
+
+	<section class="grid two-cols gap-xl">
+		<div class="card">
+			<div class="card-title with-legend">
+				<span>Hoạt động trong tuần</span>
+				<div class="legend"><span class="dot teal"></span>Đặt chỗ <span class="dot pink"></span>Huỷ chỗ</div>
+			</div>
+			<canvas id="weekActivityChart" height="140"></canvas>
+		</div>
+		<div class="card">
+			<div class="card-title">Sơ đồ đặt ghế trong ngày</div>
+			<div class="grid two-cols">
+				<canvas id="seatPieChart" height="180"></canvas>
+				<ul class="pie-legend">
+					<li><span class="swatch gold"></span>Đặt</li>
+					<li><span class="swatch green"></span>Trống</li>
+					<li><span class="swatch pink"></span>Bán</li>
+					<li><span class="swatch gray"></span>Giữ</li>
+					<li><span class="swatch cyan"></span>Tạm</li>
+				</ul>
+			</div>
+		</div>
+	</section>
+</main>
+
+<%- include('partials/footer-scripts') %>
