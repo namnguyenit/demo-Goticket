@@ -51,13 +51,13 @@ function runCommand(command, args, cwd) {
 async function ensureLegacyDistBuilt() {
   const frontAssetsPath = path.join(legacyFrontDist, "assets");
   if (!(await exists(frontAssetsPath))) {
-    runCommand("npm", ["install"], legacyFrontRoot);
+    runCommand("npm", ["install", "--include=dev", "--no-audit", "--no-fund"], legacyFrontRoot);
     runCommand("npm", ["run", "build"], legacyFrontRoot);
   }
 
   const adminAssetsPath = path.join(legacyAdminDist, "assets");
   if (!(await exists(adminAssetsPath))) {
-    runCommand("npm", ["install"], legacyAdminRoot);
+    runCommand("npm", ["install", "--include=dev", "--no-audit", "--no-fund"], legacyAdminRoot);
     runCommand("npm", ["run", "build"], legacyAdminRoot);
   }
 }
