@@ -192,6 +192,9 @@ function injectRoleLandingRedirect(html) {
 
   function getRoleFromToken(token) {
     if (!token) return null;
+    if (token.includes('-admin-')) return 'admin';
+    if (token.includes('-vendor-')) return 'vendor';
+    if (token.includes('-customer-')) return 'customer';
     const parts = token.split('-');
     return parts.length >= 4 ? parts[2] : null;
   }
@@ -260,6 +263,9 @@ function injectRoleAdminNavButton(html) {
   function getRoleFromAuthStorage() {
     const token = getRawAuthToken();
     if (!token) return null;
+    if (token.includes('-admin-')) return 'admin';
+    if (token.includes('-vendor-')) return 'vendor';
+    if (token.includes('-customer-')) return 'customer';
     const parts = token.split('-');
     return parts.length >= 4 ? parts[2] : null;
   }
@@ -347,6 +353,42 @@ function injectRoleAdminNavButton(html) {
   }
 
   return html.replace('</body>', `${navScript}</body>`);
+}
+
+function injectAdminEarlyTokenSync(html) {
+  const earlyScript = `<script id="legacy-admin-early-token-sync">
+(function () {
+  function toRawToken(value) {
+    return String(value || '').replace(/^Bearer\\s+/i, '').trim();
+  }
+
+  function detectRole(token) {
+    if (!token) return null;
+    if (token.includes('-admin-')) return 'admin';
+    if (token.includes('-vendor-')) return 'vendor';
+    if (token.includes('-customer-')) return 'customer';
+    const parts = token.split('-');
+    return parts.length >= 4 ? parts[2] : null;
+  }
+
+  const bearerToken = localStorage.getItem('Authorisation');
+  const rawToken = toRawToken(bearerToken);
+  const role = detectRole(rawToken);
+  if (rawToken && role === 'admin') {
+    localStorage.setItem('authToken', rawToken);
+  }
+})();
+</script>`;
+
+  if (html.includes('legacy-admin-early-token-sync')) {
+    return html;
+  }
+
+  if (html.includes('<script type="module"')) {
+    return html.replace('<script type="module"', `${earlyScript}\n    <script type="module"`);
+  }
+
+  return html.replace('</head>', `${earlyScript}</head>`);
 }
 
 function injectFrontResponsiveHotfix(html) {
@@ -610,7 +652,8 @@ async function prepareFrontAndAdmin() {
 
   const adminIndexPath = path.join(adminMirror, "index.html");
   const adminIndex = await readFile(adminIndexPath, "utf8");
-  const withAdminResponsiveHotfix = injectAdminResponsiveHotfix(adminIndex);
+  const withAdminEarlyToken = injectAdminEarlyTokenSync(adminIndex);
+  const withAdminResponsiveHotfix = injectAdminResponsiveHotfix(withAdminEarlyToken);
   await writeFile(adminIndexPath, withAdminResponsiveHotfix, "utf8");
 
   await patchLegacyAssetJsUrls();
