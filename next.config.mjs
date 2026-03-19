@@ -1,6 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  async redirects() {
+    return [
+      {
+        source: "/admin",
+        destination: "/dashboard",
+        permanent: false,
+      },
+    ];
+  },
   async rewrites() {
     return {
       beforeFiles: [
@@ -15,8 +24,9 @@ const nextConfig = {
         { source: "/customer", destination: "/mirror/front/index.html" },
         { source: "/customer/:path*", destination: "/mirror/front/index.html" },
 
-        { source: "/admin", destination: "/mirror/admin/index.html" },
-        { source: "/admin/:path*", destination: "/mirror/admin/index.html" },
+        { source: "/dashboard", destination: "/mirror/admin/index.html" },
+        { source: "/users", destination: "/mirror/admin/index.html" },
+        { source: "/vendors", destination: "/mirror/admin/index.html" },
 
         { source: "/vendor", destination: "/vendor/index.html" },
         { source: "/vendor/login", destination: "/vendor/login/index.html" },

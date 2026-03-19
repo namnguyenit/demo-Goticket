@@ -12,6 +12,263 @@
 
 <body>
   <div id="root"></div>
-</body>
+
+<script>
+(function () {
+  const DEMO_ACCOUNTS = [
+    { label: 'Customer', email: 'customer@demo.local' },
+    { label: 'Admin', email: 'admin@demo.local' },
+    { label: 'Vendor', email: 'vendor@demo.local' }
+  ];
+
+  function ensureHelper() {
+    if (window.location.pathname !== '/sign-in') return;
+
+    const emailInput = document.querySelector('#email');
+    const passwordInput = document.querySelector('#password');
+    if (!emailInput || !passwordInput) return;
+    if (document.getElementById('demo-account-helper')) return;
+
+    const host = emailInput.parentElement || emailInput;
+    if (getComputedStyle(host).position === 'static') {
+      host.style.position = 'relative';
+    }
+
+    const helper = document.createElement('div');
+    helper.id = 'demo-account-helper';
+    helper.style.marginTop = '8px';
+    helper.style.border = '1px solid #ead7b2';
+    helper.style.borderRadius = '10px';
+    helper.style.background = '#fff9eb';
+    helper.style.padding = '10px';
+    helper.style.fontSize = '13px';
+
+    const title = document.createElement('div');
+    title.textContent = 'Tai khoan demo (cham vao o user de chon):';
+    title.style.fontWeight = '700';
+    title.style.marginBottom = '8px';
+    helper.appendChild(title);
+
+    const passHint = document.createElement('div');
+    passHint.textContent = 'Mat khau demo: 123456';
+    passHint.style.color = '#5b2642';
+    passHint.style.fontWeight = '700';
+    passHint.style.marginBottom = '8px';
+    helper.appendChild(passHint);
+
+    const list = document.createElement('div');
+    list.style.display = 'none';
+    list.style.gap = '6px';
+    list.style.flexDirection = 'column';
+
+    DEMO_ACCOUNTS.forEach(function (account) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.textContent = account.label + ': ' + account.email;
+      btn.style.width = '100%';
+      btn.style.textAlign = 'left';
+      btn.style.border = '1px solid #e0d0aa';
+      btn.style.borderRadius = '8px';
+      btn.style.padding = '8px';
+      btn.style.background = '#ffffff';
+      btn.style.cursor = 'pointer';
+
+      btn.addEventListener('click', function () {
+        function setControlledValue(input, value) {
+          const proto = Object.getPrototypeOf(input);
+          const descriptor = Object.getOwnPropertyDescriptor(proto, 'value');
+          if (descriptor && descriptor.set) {
+            descriptor.set.call(input, value);
+          } else {
+            input.value = value;
+          }
+          input.dispatchEvent(new Event('input', { bubbles: true }));
+          input.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+
+        setControlledValue(emailInput, account.email);
+        setControlledValue(passwordInput, '123456');
+
+        const form = emailInput.closest('form');
+        setTimeout(function () {
+          if (!form) return;
+          const submitEvent = new Event('submit', { bubbles: true, cancelable: true });
+          const notPrevented = form.dispatchEvent(submitEvent);
+          if (notPrevented && typeof form.requestSubmit === 'function') {
+            form.requestSubmit();
+          }
+        }, 200);
+      });
+
+      list.appendChild(btn);
+    });
+
+    helper.appendChild(list);
+    host.insertAdjacentElement('afterend', helper);
+
+    function openList() {
+      list.style.display = 'flex';
+    }
+
+    emailInput.addEventListener('focus', openList);
+    emailInput.addEventListener('click', openList);
+  }
+
+  const observer = new MutationObserver(function () {
+    ensureHelper();
+  });
+
+  observer.observe(document.documentElement, { childList: true, subtree: true });
+  ensureHelper();
+})();
+</script>
+<script>
+(function () {
+  function getRawAuthToken() {
+    const raw = localStorage.getItem('Authorisation') || '';
+    return String(raw).replace(/^Bearers+/i, '').trim();
+  }
+
+  function getRoleFromToken(token) {
+    if (!token) return null;
+    const parts = token.split('-');
+    return parts.length >= 4 ? parts[2] : null;
+  }
+
+  function syncRoleTokenStores(role, token) {
+    if (!role || !token) return;
+    if (role === 'vendor') {
+      localStorage.setItem('API_TOKEN', token);
+      localStorage.setItem('API_BASE_URL', '/api');
+    }
+    if (role === 'admin') {
+      localStorage.setItem('authToken', token);
+    }
+  }
+
+  if (!window.__roleRedirectPatched) {
+    window.__roleRedirectPatched = true;
+    const originalSetItem = localStorage.setItem.bind(localStorage);
+    localStorage.setItem = function (key, value) {
+      if (key === 'Authorisation') {
+        const token = String(value || '').replace(/^Bearers+/i, '').trim();
+        const role = getRoleFromToken(token);
+        if (role === 'admin' || role === 'vendor') {
+          sessionStorage.setItem('force_role_redirect_once', role);
+        }
+        syncRoleTokenStores(role, token);
+      }
+      return originalSetItem(key, value);
+    };
+  }
+
+  // If already logged-in vendor from user UI, keep vendor auth storage in sync.
+  const existingToken = getRawAuthToken();
+  const existingRole = getRoleFromToken(existingToken);
+  if ((existingRole === 'vendor' || existingRole === 'admin') && existingToken) {
+    syncRoleTokenStores(existingRole, existingToken);
+  }
+
+  const path = window.location.pathname;
+  if (path === '/') {
+    const pendingRole = sessionStorage.getItem('force_role_redirect_once');
+    if (pendingRole === 'admin' || pendingRole === 'vendor') {
+      sessionStorage.removeItem('force_role_redirect_once');
+      window.location.replace(pendingRole === 'admin' ? '/dashboard' : '/vendor');
+    }
+  }
+})();
+</script>
+<script>
+(function () {
+  function getRawAuthToken() {
+    const raw = localStorage.getItem('Authorisation') || '';
+    return String(raw).replace(/^Bearers+/i, '').trim();
+  }
+
+  function getRoleFromAuthStorage() {
+    const token = getRawAuthToken();
+    if (!token) return null;
+    const parts = token.split('-');
+    return parts.length >= 4 ? parts[2] : null;
+  }
+
+  function syncRoleTokenStores(role, token) {
+    if (!role || !token) return;
+    if (role === 'vendor') {
+      localStorage.setItem('API_TOKEN', token);
+      localStorage.setItem('API_BASE_URL', '/api');
+    }
+    if (role === 'admin') {
+      localStorage.setItem('authToken', token);
+    }
+  }
+
+  function ensureAdminButton() {
+    const role = getRoleFromAuthStorage();
+    if (role !== 'admin' && role !== 'vendor') {
+      const old = document.getElementById('role-admin-nav-btn');
+      if (old) old.remove();
+      return;
+    }
+
+    const path = window.location.pathname;
+    if (path === '/sign-in' || path === '/sign-up') return;
+
+    const token = getRawAuthToken();
+    if (token && (role === 'vendor' || role === 'admin')) {
+      syncRoleTokenStores(role, token);
+    }
+
+    const homeLink = document.querySelector('a[href="/"]');
+    const bookLink = document.querySelector('a[href="/book"]');
+    const navContainer = (bookLink && bookLink.parentElement) || (homeLink && homeLink.parentElement);
+    if (!navContainer) return;
+
+    let btnWrap = document.getElementById('role-admin-nav-btn');
+    if (btnWrap) {
+      const targetLink = btnWrap.querySelector('a');
+      if (targetLink) {
+        targetLink.setAttribute('href', role === 'admin' ? '/dashboard' : '/vendor');
+      }
+      return;
+    }
+
+    const sampleLink = bookLink || homeLink;
+    const sampleClass = sampleLink ? sampleLink.className : '';
+
+    btnWrap = document.createElement('a');
+    btnWrap.id = 'role-admin-nav-btn';
+    btnWrap.href = role === 'admin' ? '/dashboard' : '/vendor';
+    btnWrap.textContent = 'Trang quan tri';
+    if (sampleClass) {
+      btnWrap.className = sampleClass;
+    } else {
+      btnWrap.style.padding = '8px 12px';
+      btnWrap.style.borderRadius = '8px';
+      btnWrap.style.background = '#f7ac3d';
+      btnWrap.style.color = '#5b2642';
+      btnWrap.style.fontWeight = '700';
+      btnWrap.style.textDecoration = 'none';
+    }
+
+    navContainer.appendChild(btnWrap);
+
+    btnWrap.addEventListener('click', function () {
+      const latestRole = getRoleFromAuthStorage();
+      const latestToken = getRawAuthToken();
+      if (latestToken && (latestRole === 'vendor' || latestRole === 'admin')) {
+        syncRoleTokenStores(latestRole, latestToken);
+      }
+    });
+  }
+
+  const observer = new MutationObserver(function () {
+    ensureAdminButton();
+  });
+  observer.observe(document.documentElement, { childList: true, subtree: true });
+  ensureAdminButton();
+})();
+</script></body>
 
 </html>

@@ -421,7 +421,7 @@ export function login(email: string, password: string) {
     return null;
   }
 
-  const token = `demo-${user.id}-${randomUUID()}`;
+  const token = `demo-${user.id}-${user.role}-${randomUUID()}`;
   tokens.set(token, user.id);
   return { token, user };
 }
